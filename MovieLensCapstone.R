@@ -83,3 +83,4 @@ edx %>% group_by(rating) %>% summarize(number=n())%>% arrange(desc(number))
 edx %>% group_by(rating) %>% summarize(number=n()) %>% 
   mutate(rating_group = ifelse(rating%%1==0,"whole","decimal")) %>% 
   group_by(rating_group)%>%summarize(sum(number))
+#test
