@@ -11,6 +11,7 @@ if(!require(data.table)) install.packages("data.table", repos = "http://cran.us.
 library(tidyverse)
 library(caret)
 library(data.table)
+library(doParallel)
 
 # MovieLens 10M dataset:
 # https://grouplens.org/datasets/movielens/10m/
@@ -18,6 +19,13 @@ library(data.table)
 
 dl <- tempfile()
 download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", dl)
+
+#detectCores()
+#registerDoParallel(makePSOCKcluster(4))
+
+#registerDoSEQ()
+#stopCluster(makePSOCKcluster(4))
+#gc(reset=TRUE)
 
 ratings <- fread(text = gsub("::", "\t", readLines(unzip(dl, "ml-10M100K/ratings.dat"))),
                  col.names = c("userId", "movieId", "rating", "timestamp"))
@@ -30,9 +38,9 @@ movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(levels(movieId))
                                            title = as.character(title),
                                            genres = as.character(genres))
 # if using R 4.0 or later:
-movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
-                                           title = as.character(title),
-                                           genres = as.character(genres))
+#movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
+                                         # title = as.character(title),
+                                         # genres = as.character(genres))
 
 
 movielens <- left_join(ratings, movies, by = "movieId")
@@ -54,4 +62,24 @@ edx <- rbind(edx, removed)
 
 rm(dl, ratings, movies, test_index, temp, movielens, removed)
 
-#Test
+#Quiz Q1
+str(edx)
+#Quiz Q2
+edx %>% group_by(rating) %>% summarize(number=n())
+#Quiz Q3
+uniqueN(edx$movieId)
+#Quiz Q4
+uniqueN(edx$userId)
+#Quiz Q5
+sum(str_detect(edx$genres,"Drama"))
+sum(str_detect(edx$genres,"Comedy"))
+sum(str_detect(edx$genres,"Thriller"))
+sum(str_detect(edx$genres,"Romance"))
+#Quiz Q6
+edx %>% group_by(title) %>% summarize(number=n())%>% arrange(desc(number))
+#Quiz Q7
+edx %>% group_by(rating) %>% summarize(number=n())%>% arrange(desc(number))
+#Quiz Q8
+edx %>% group_by(rating) %>% summarize(number=n()) %>% 
+  mutate(rating_group = ifelse(rating%%1==0,"whole","decimal")) %>% 
+  group_by(rating_group)%>%summarize(sum(number))
